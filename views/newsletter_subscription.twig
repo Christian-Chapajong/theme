@@ -1,0 +1,12 @@
+{# Extend page template #}
+{% extends 'templates/page.twig' %}
+
+{% set title = 'We\'ve got it' %}
+{% set titleClass = 'newsletter-header text-center' %}
+{% set breadcrumb_title = 'Newsletter Subscription' %}
+
+{% block page_content %}
+	<div class="text-center snippet-container">
+		{{ theme.text_snippet('newsletter') }}
+	</div>
+{% endblock %}

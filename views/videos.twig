@@ -1,0 +1,30 @@
+{# Extend page template #}
+{% extends 'templates/page_wrap.twig' %}
+
+{% set title = 'Videos' %}
+{% set titleClass = 'galleries-header text-center padding-bottom' %}
+{% set bodyClass = 'videos' %}
+
+{% block page_content %}
+	<div class="row small-up-1 medium-up-2 videos-container">
+		{# Render videos #}
+		{% for video in videos %}
+            <div class="column column-block">
+                <article class="video-box media-box">
+                    <div class="shadow-box">
+                        <div class="responsive-embed widescreen no-margin">
+                            <iframe src="{{ video.embed_code }}" class="no-border" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <h4 class="item-title">
+                        {{ video.title }}
+                    </h4>
+                </article>
+            </div>
+		{% else %}
+			<div class="column">
+				<h2 class="subheader">No videos found.</h2>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}

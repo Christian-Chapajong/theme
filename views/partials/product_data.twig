@@ -1,0 +1,79 @@
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.title|replace('"', "'") }}",
+  "image": "https:{{ product.photo_url }}",
+  "description": "{{ product.description|striptags|replace('"', "'") }}",
+  {% if product.mpn %}
+      "mpn": "{{ product.mpn|replace('"', "'") }}",
+  {% endif %}
+  {% if product.gtin %}
+      "gtin": "{{ product.gtin|replace('"', "'") }}",
+  {% endif %}
+  {% if product.brand %}
+      "brand": {
+        "@type": "Thing",
+        "name": "{{ product.brand.title|replace('"', "'") }}"
+      },
+  {% endif %}
+  {% if product.sku %}
+     "sku": {{ product.sku|json_encode|raw }},
+  {% endif %}
+  {% if reviews_enabled %}
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "{{ product.rating }}",
+            "reviewCount": "{{ product.reviews|length }}"
+        },
+   {% endif %}
+   {% if product.variations %}
+	"offers": [
+		{% for variation in product.variations %}
+			{ 
+			"@type": "Offer",
+			"price": "{{ variation.price }}",
+			"priceCurrency": "GBP",
+			"priceValidUntil": "2020-11-05",
+			"itemCondition": "http://schema.org/NewCondition",
+			"url": "{{ product.url }}",
+			{% if variation.sku %}
+				"sku": "{{ variation.sku }}",
+			{% endif %}
+			{% if variation.gtin %}
+				"gtin": "{{ variation.gtin }}",
+			{% endif %}
+			{% if variation.in_stock %}
+				"availability": "https://schema.org/InStock",
+			{% else %}
+				"availability": "https://schema.org/OutOfStock",
+			{% endif %}
+			"seller": {
+			  "@type": "Organization",
+			  "name": "{{ global.business.name }}" }
+			}{% if loop.last %}{% else %},{% endif %}
+		{% endfor %}
+	]
+  {% else %}
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "GBP",
+       {% if product.sale_price > 0 %}
+       "price": "{{ product.sale_price }}",
+       {% else %}
+       "price": "{{ product.price }}",
+       {% endif %}
+    "url": "{{ product.url }}",
+    "priceValidUntil": "2020-11-05",
+    "itemCondition": "http://schema.org/NewCondition",
+    {% if product.in_stock %}
+        "availability": "https://schema.org/InStock",
+    {% endif %}
+    "seller": {
+      "@type": "Organization",
+      "name": "{{ global.business.name }}"
+    }
+  }
+  {% endif %}
+}
+</script>

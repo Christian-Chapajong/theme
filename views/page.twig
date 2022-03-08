@@ -1,0 +1,16 @@
+{# Extend page template #}
+{% extends 'templates/page_wrap.twig' %}
+
+{% set title = page.title %}
+{% set titleClass = 'account-header text-center' %}
+{% set hideTitle = 0 %}
+{% set side_list = global.theme.settings['list_sidebar'] %}
+
+{% block page_content %}
+    <div class="page-container shadow-box lg pad-small text-center">
+        {# Render page content #}
+        <div class="fr-view">
+            {{ page.content|raw }}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'templates/blocks.twig' %}
+
+{% block content %}
+    {% set contact_info = global.business.phone or global.business.email or global.business.address ? true : false %}
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="column{{ contact_info ? ' large-9 large-push-3' : '' }}">
+                    <div class="row">
+                        <div class="column large-8">
+                            <div class="row">
+                                {% for i in 1..3 %}
+                                    <div class="column large-4">
+                                        {# Render footer link list #}
+                                        {{ theme.link_list('footer_' ~ i, 'footer-list menu vertical', true) }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="column large-4">
+                            <h4 class="social-title large-text-right">
+                                Connect with us
+                            </h4>
+                            {# Render newsletter form #}
+                            {{ block('footer_newsletter') }}
+
+                            {# Render social links #}
+                            {{ block('footer_social') }}
+                        </div>
+                    </div>
+                </div>
+                {% if contact_info %}
+                    <div class="column large-3 large-pull-9">
+                        {# Render contact info #}
+                        {{ block('footer_contact') }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="column large-6">
+                {# Render copyright text #}
+                {{ block('footer_copyright') }}
+            </div>
+            <div class="column large-6 large-text-right">
+                {% include 'partials/payment_icons.twig' with { 'classes': 'footer-payment-list' } %}
+            </div>
+        </div>
+    </footer>
+{% endblock %}
+
+
+{% block footer_social %}
+    <ul class="footer-social menu simple large-text-right">
+        {% set icons = {
+        'facebook': 'facebook',
+        'twitter': 'twitter',
+        'googleplus': 'google-plus',
+        'linkedin': 'linkedin',
+        'pinterest': 'pinterest',
+        'youtube': 'youtube',
+        'custom': 'instagram'
+        } %}
+        {% for link in global.social_links %}
+            <li>
+                <a href="{{ link.url }}" target="_blank">
+                    {{ theme.sw_icon( icons[link.name], icons[link.name] )}}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+
+{% block footer_copyright %}
+    {# Render copyright statement #}
+    <div class="footer-copy">
+        <p>
+            {{ theme.text_snippet('copyright') }}&nbsp;<a class="text-underline" href="{{ global.service_provider.website_url }}" target="_blank">Ecommerce</a> by {{ global.service_provider.name }}
+        </p>
+    </div>
+{% endblock %}
+
+
+{% block footer_contact %}
+    <div class="footer-contact">
+        {% if global.business.phone %}
+            <p class="footer-contact-telephone">
+                <span class="footer-contact-label">Tel:</span> <a href="tel:{{ global.business.phone }}">{{ global.business.phone }}</a>
+            </p>
+        {% endif %}
+        {% if global.business.email %}
+            <p class="footer-contact-email">
+                <span class="footer-contact-label">Email:</span> <a href="mailto:{{ global.business.email }}">{{ global.business.email }}</a>
+            </p>
+        {% endif %}
+        {% if global.business.address %}
+            <address class="footer-contact-address">
+                {{ global.business.one_line_address|replace({',,':','}) }}
+            </address>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block footer_newsletter %}
+    <div class="footer-newsletter">
+        {% if global.theme.settings.mailchimp_action %}
+            <form action="{{ global.theme.settings.mailchimp_action }}" method="post" class="newsletter-form" name="mc-embedded-subscribe-form" target="_blank" novalidate="novalidate">
+                <div class="input-group no-margin">
+                    {{ html.input('EMAIL', '', 'input-group-field jsv_email required', 'Email address') }}
+                    <div class="input-group-button">
+                        {{ html.button('', '', '', '', true, '', 'arrow', '') }}
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            <form action="/newsletter-subscribe" method="post" class="newsletter-form form-with-validation">
+                <div class="input-group no-margin">
+                    {{ html.input('email', '', 'input-group-field jsv_email required', 'Email address') }}
+                    <div class="input-group-button">
+                        {{ html.button('', '', '', '', true, '', 'arrow', '') }}
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

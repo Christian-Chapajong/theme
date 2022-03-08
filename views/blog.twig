@@ -1,0 +1,109 @@
+{# Extend blog template #}
+{% extends 'templates/blog_page.twig' %}
+
+{% block blog_menus %}
+    {% if archive or categories %}
+        {# blog categories and archive #}
+        <div class="nav-blog-container">
+            <nav class="row column">
+                {% if categories %}
+                    <ul class="blog-categories-nav simple menu">
+                        <li>
+                            <a href="/blog" class="{{ global.current_path == '/blog' ? 'active' : 'inactive' }}">
+                                Home
+                            </a>
+                        </li>
+                        {% for item in categories %}
+                            <li>
+                                <a href="{{ item.url }}" class="{{ item.url == global.current_path ? 'active' : 'inactive' }}">
+                                    {{ item.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if archive %}
+                    <ul class="blog-archive-nav simple menu">
+                        {% if not categories %}
+                            <li>
+                                <a href="/blog" class="{{ global.current_path == '/blog' ? 'active' : 'inactive' }}">
+                                    Home
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% for item in archive %}
+                            <li>
+                                <a href="{{ item.url }}" class="{{ item.url == global.current_url ? 'active' : 'inactive' }}">
+                                    {{ item.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </nav>
+        </div>
+        <br>
+    {% endif %}
+{% endblock %}
+
+{% block posts %}
+    {# Render blog posts #}
+    {% include 'partials/blog_posts.twig' with { 'preview': true } %}
+
+    {% set adjacent_links = 4 %}
+    {% set low_show = total_pages < (current_page + adjacent_links) ? total_pages - 8 : current_page > adjacent_links ? (current_page - adjacent_links) : 1 %}
+    {% set high_show = current_page < (adjacent_links + 1) ? 9 : (current_page + adjacent_links) %}
+
+    {# Render page links #}
+    {% if total_pages > 1 %}
+        <nav class="pagination-container">
+            <div class="row column text-center large-text-right">
+                <ul class="pagination">
+                    {% if current_page > 1 %}
+                        <li class="pagination-previous">
+                            <a href="{{ blog_page_url(current_page - 1) }}" class="page-link">
+                                {{ theme.sw_icon('arrow-pointing-to-left', 'Previous') }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="pagination-previous disabled">
+                            {{ theme.sw_icon('arrow-pointing-to-left', 'Previous') }}
+                        </li>
+                    {% endif %}
+                    {% for page in 1..total_pages %}
+                        {% if page == current_page %}
+                            <li class="active-page">
+                                <a href="#" class="page-link current">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% elseif (page < low_show) or (page > high_show) %}
+                            <li class="hide">
+                                <a href="{{ blog_page_url(page) }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{{ blog_page_url(page) }}" class="page-link">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if current_page < total_pages %}
+                        <li class="pagination-next">
+                            <a href="{{ blog_page_url(current_page + 1) }}" class="page-link">
+                                {{ theme.sw_icon('arrow-pointing-to-right', 'Next') }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="pagination-next disabled">
+                            {{ theme.sw_icon('arrow-pointing-to-right', 'Next') }}
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    {% endif %}
+{% endblock %}

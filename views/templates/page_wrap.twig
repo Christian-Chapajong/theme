@@ -1,0 +1,49 @@
+{# Extend master template #}
+{% extends 'templates/master.twig' %}
+
+{% block content %}
+    <div id="content" class="content{{ contentClass ? ' ' ~ contentClass : '' }}">
+        <div class="inner-wrapper">
+        	<div class="row column">
+        		<ul class="breadcrumbs main-breadcrumbs">
+        			{# Render breadcrumbs #}
+        			<li>
+        				<a href="/">
+        					Home
+        				</a>
+        			</li>
+        			{% block breadcrumbs %}{% endblock %}
+        			<li>
+        				{{ breadcrumb_title|default(title) }}
+        			</li>
+        		</ul>
+        		<section class="main-content">
+        			{# Render info message #}
+        			{% if global.info_message %}
+                        <noscript>
+            				<div class="secondary callout" data-closable>
+            					<button type="button" class="close-button" data-close>
+            						<span aria-hidden="true">&times;</span>
+            					</button>
+            					{{ global.info_message|raw }}
+            				</div>
+                        </noscript>
+        			{% endif %}
+        			{% if title %}
+                        <div class="block-header">
+                            <h1 class="{{ titleClass ? titleClass : 'main-heading' }}{{ hideTitle ? ' show-for-sr' : '' }}"{% if title_setting %} data-name="{{ title_setting }}" id="{{ title_setting }}"{% endif %}>
+                                {{ title }}
+                            </h1>
+                            {% if description and not hideDesc %}
+                                <div class="page-description"{% if description_setting %} data-name="{{ description_setting }}" id="{{ description_setting }}"{% endif %}>
+                                    {{ description|raw }}
+                                </div>
+                            {% endif %}
+                        </div>
+        			{% endif %}
+        			{% block page_content %}{% endblock %}
+        		</section>
+        	</div>
+        </div>
+    </div>
+{% endblock %}

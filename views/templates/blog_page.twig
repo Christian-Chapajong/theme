@@ -1,0 +1,33 @@
+{# Extend page template #}
+{% extends 'templates/page.twig' %}
+
+{% set full_width = true %}
+
+{% if post %}
+    {% set title = post.title %}
+    {% set hideTitle = 1 %}
+    {% set hideDesc = 1 %}
+{% else %}
+    {% set title = 'Blog' %}
+    {% set titleClass = 'blog-home-title regular-header' %}
+    {% set description = global.theme.settings.text_blog %}
+    {% set contentClass = total_pages > 1 ? 'no-padding-bottom important' : '' %}
+{% endif %}
+
+{% block breadcrumbs %}
+	{# Add blog link #}
+	{% if post %}
+		<li>
+			<a href="/blog">
+				Blog
+			</a>
+		</li>
+	{% endif %}
+{% endblock %}
+
+{% block page_content %}
+    {% block blog_menus %}{% endblock %}
+    <div class="blog-container">
+        {% block posts %}{% endblock %}
+    </div>
+{% endblock %}

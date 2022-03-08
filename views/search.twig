@@ -1,0 +1,15 @@
+{# Extend collection template #}
+{% extends 'templates/collection.twig' %}
+
+{% set title = 'Search Results' %}
+{% set show_sidebar = true %}
+
+{% block sidebar %}
+    {# Render category menu #}
+    {% include 'partials/category_menu.twig' with { hide_side_menu: true } %}
+{% endblock %}
+
+{% block items %}
+	{# Render products #}
+	{% include 'partials/items.twig' with { 'classes': 'small-up-2 large-up-4' } %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{# Extend page template #}
+{% extends 'templates/page_wrap.twig' %}
+
+{% set title = 'Login To Your Account' %}
+{% set bodyClass = 'account-page' %}
+{% set contentClass = 'split' %}
+{% set breadcrumb_title = 'Login' %}
+{% set hideTitle = 1 %}
+{% set hideDesc = 1 %}
+
+
+{% block page_content %}
+    <div class="row collapse">
+        {{ theme.errors(errors) }}
+        <div class="column large-6">
+            {# login form #}
+            <section class="account-login shadow-box lg bg-blank">
+                <h1 class="account-header">
+                    Log in?
+                </h1>
+                <form action="{{ global.current_url }}" method="post" class="form-with-validation">
+                    <label>
+                        <span class="field-label">Your Email address</span>
+                        {{ html.input('email', '', 'required','', 'email' ) }}
+                    </label>
+                    <label>
+                        <span class="field-label">Your Password</span>
+                        {{ html.input('password', '', 'required', '', 'password') }}
+                    </label>
+                    <p class="text-small padding-top">
+                        <a href="/account/forgotten-password" class="text-body text-underline">Oops! I forgot my password</a>
+                    </p>
+                    <button type="submit" class="button pad-x margin-top">Login</button>
+                </form>
+            </section>
+        </div>
+        <div class="column large-6">
+            {# register link #}
+            <div class="shaded-form-container">
+                <section class="account-create shadow-box lg bg-blank">
+                    <h1 class="account-header">
+                        New <br class="show-for-large">customer?
+                    </h1>
+                    {% if gts.text_create_account %}
+                        <p class="text-small">
+                            {{ theme.text_snippet('create_account') }}
+                        </p>
+                    {% endif %}
+                    <a class="button pad-x margin-top" href="/account/create">Create my account</a>
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

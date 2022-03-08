@@ -1,0 +1,112 @@
+// generic
+
+html, body {
+    @include rem(font-size, $base-font-size + px);
+    line-height: 1.2;
+    font-family: $font_body;
+}
+
+// headings
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.56rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h5 { font-size: 1rem; }
+
+
+// subheaders
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: $font_heading;
+    &.subheader {
+
+    }
+}
+
+h1 {
+    color: if(setting-value('website_colours_use_default_website_colors'), $color_global_black_titles, $color_website_titles);
+
+    $headers: (
+        'regular': 26px,
+        'galleries': 46px, // videos
+        'blog-post': 52px,
+        'stockists': 56px,
+        'account': 66px, // gift voucher
+        'newsletter': 86px
+    );
+
+    @each $name, $value in $headers {
+
+        &.#{$name}-header {
+            @include rem(font-size, $value);
+            font-weight: if($name == 'regular', 400, 900);
+            line-height: 1;
+            margin-bottom: .5em;
+
+            @if $name == 'blog-post' {
+                color: if(setting-value('blog_use_default_website_colors'), $color_global_black_text, $color_blog_post_page_title);
+            }
+
+            @if $name == 'account' or $name == 'newsletter' {
+                @media #{$s-only} {
+                    @include rem(font-size, 40px);
+                }
+            }
+        }
+    }
+
+    &.blog-home-title {
+        color: if(setting-value('blog_use_default_website_colors'), $color_global_black_titles, $color_blog_home_page_title);
+    }
+}
+
+.section-header {
+    @include rem(font-size, 14px);
+    font-weight: 800;
+    @include rem(padding, 20px 0 15px);
+}
+
+
+// elements
+
+address {
+    font-style: normal;
+}
+
+a {
+    color: if(setting-value('website_colours_use_default_website_colors'), $color_global_red_accent, $color_website_accent);
+
+    @include is-active {
+        color: if(setting-value('website_colours_use_default_website_colors'), $color_global_red_accent, $color_website_accent);
+    }
+}
+
+// no highlight outline
+
+:focus {
+    outline: none;
+}
+
+hr {
+    max-width: $site-width;
+}
+
+.page-description {
+    @include rem(padding-bottom, 25px);
+}
+
+// raw text styles
+
+.snippet-container {
+
+    a {
+        color: if(setting-value('website_colours_use_default_website_colors'), $color_global_black_text, $color_website_text);
+        text-decoration: underline;
+
+        @include is-active {
+            color: if(setting-value('website_colours_use_default_website_colors'), $color_global_black_text, $color_website_text);
+        }
+    }
+}

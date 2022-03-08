@@ -1,0 +1,104 @@
+{# Extend master template #}
+{% extends 'templates/master.twig' %}
+
+{% set featured_categories = featured_categories(99) %}
+{% set featured_products = featured_products(99) %}
+
+{% block content %}
+    <div id="content" class="content homepage">
+        {{ block('featuredCategories') }}
+        {{ block('featuredProducts') }}
+    </div>
+{% endblock %}
+
+
+{% block featuredCategories %}
+    {# Render featured categories #}
+    {% if featured_categories|length %}
+        <div class="row column">
+            <div class="featured-categories-slider featured-slider section-block no-padding-top important">
+                {% for category in featured_categories %}
+                    <div class="row featured-box">
+                        <div class="column large-8">
+                            <div class="shadow-box lg category-box">
+                                <a class="image-container" href="{{ category.url }}" data-fit="{{ global.theme.settings.image_container_category ? '1' : '0' }}">
+                                    {{ html.image(category.photo_url, category.photo_description, '', '', false, true) }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="column large-4">
+                            <div class="featured-heading">
+                                <h2>
+                                    <a href="{{ category.url }}">{{ category.title }}</a>
+                                </h2>
+                                <div class="show-for-large">
+                                    {{ category.description|raw }}
+                                </div>
+                            </div>
+                            <a href="{{ category.url }}" class="button border">
+                                <span class="text-top">
+                                    Browse
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% block featuredProducts %}
+    {# Render featured products #}
+    {% if featured_products|length %}
+        <section class="featured-products section-block">
+            <div class="products items-container row small-up-2 medium-up-3 large-up-4">
+                {% if gts.text_home_featured_title or gts.text_home_featured_paragraph %}
+                    <div class="column column-block">
+                        <div class="featured-products-heading">
+                            <div class="inner">
+                                {% if gts.text_home_featured_title %}
+                                    <h2 class="featured-products-title">
+                                        {{ theme.text_snippet('home_featured_title', true) }}
+                                    </h2>
+                                {% endif %}
+                                {% if gts.text_home_featured_paragraph %}
+                                    {{ theme.text_snippet('home_featured_paragraph') }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% include 'partials/item.twig' with { 'items': featured_products } %}
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}
+
+
+{% block instagramFeed %}
+    {% if gts.instagram_token|length %}
+        <section class="section-block">
+            <h2 class="text-center">
+                Instagram Feed
+            </h2>
+            <div class="row column">
+                <ul class="ig_images no-bullet row small-up-2 medium-up-4 large-up-6"></ul>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    {% if gts.instagram_token|length %}
+        {{ html.script(asset_url('js/instagram.js')) }}
+        <script>
+            $('.ig_images').instagram({
+                accessToken: '{{ gts.instagram_token }}',
+                urls: true
+            });
+        </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{# Extend page template #}
+{% extends 'templates/page_wrap.twig' %}
+
+{% set breadcrumb_title = 'Login' %}
+{% set hideTitle = 1 %}
+{% set hideDesc = 1 %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="large-8 large-push-2 column">
+            <div class="account-login">
+                <div class="row" data-equalizer data-equalize-on="medium">
+                    <div class="medium-6 column">
+                        <div class="card card-section" data-equalizer-watch>
+                            <h3 class="text-center">
+                                Login to your account
+                            </h3>
+                            <form action="{{ global.current_url }}" method="post">
+                                <label>
+                                    <span class="field-label">Email address</span>
+                                    {{ html.input('email', '', 'required','', 'email' ) }}
+                                </label>
+                                <label>
+                                    <span class="field-label">Password</span>
+                                    {{ html.input('password', '', 'required', '', 'password') }}
+                                </label>
+                                <button type="submit" class="button expanded">Log in</button>
+                                <div class="text-center">
+                                    <a href="/account/forgotten-password">Forgot password</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="medium-6 column">
+                        <div class="card card-section" data-equalizer-watch>
+                            <h3 class="text-center">
+                                Create an account
+                            </h3>
+                            <form action="/account/create" method="post">
+                                <label>
+                                    <span class="field-label">Email address</span>
+                                    {{ html.input('email', '', 'required','', 'email' ) }}
+                                </label>
+                                <button type="submit" class="button expanded secondary">Sign me up</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

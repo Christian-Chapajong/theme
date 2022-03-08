@@ -1,0 +1,17 @@
+{# Extend collection template #}
+{% extends 'templates/collection.twig' %}
+
+{% set title = category.title %}
+{% set description = category.description %}
+{% set show_sidebar = true %}
+
+{% block sidebar %}
+	{# Render category menu #}
+	{% include 'partials/category_menu.twig' %}
+{% endblock %}
+
+{% block items %}
+	{# Render products #}
+	{% include 'partials/items.twig' with { 'classes': 'small-up-2 large-up-4' } %}
+{% endblock %}
+

@@ -1,0 +1,16 @@
+{# Extend collection template #}
+{% extends 'templates/collection.twig' %}
+
+{% set title = 'Our Categories' %}
+{% set titleClass = 'main-heading padding-bottom' %}
+{% set show_sidebar = true %}
+
+{% block sidebar %}
+    {# Render category menu #}
+    {% include 'partials/category_menu.twig' %}
+{% endblock %}
+
+{% block items %}
+	{# Render categories #}
+	{% include 'partials/items.twig' with { 'items': categories, 'item_type': 'category', 'classes': 'small-up-1 medium-up-2' } %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{# Render collection items (products, categories, galleries or gallery photos) #}
+{% set type = item_type|default('product') %}
+{% set classes = classes|default('small-up-2 large-up-4') %}
+<div class="products items-container row {{ classes }}" data-class="{{ classes }}">
+    {% include 'partials/item.twig' with { 'item_type': type } %}
+</div>

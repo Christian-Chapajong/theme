@@ -1,0 +1,87 @@
+{# Extend page template #}
+{% extends 'templates/page.twig' %}
+
+{% set title = 'Contact Us' %}
+{% set hideTitle = 0 %}
+{% set titleClass = 'regular-header text-center' %}
+{% set contentClass = 'no-padding-bottom important' %}
+{% set full_width = 1 %}
+
+{# Set labels #}
+{% set labels = {
+'name': 'Name',
+'email_address': 'Email Address',
+'phone': 'Telephone Number',
+'message': 'Enquiry'
+} %}
+
+{% block page_content %}
+    {# company contact information #}
+    <div class="contact-information text-center section-block">
+        {% if global.business.address %}
+            <address>
+                {{ global.business.address|nl2br }}
+            </address>
+        {% endif %}
+        {% if global.business.phone %}
+            <p>
+                Tel: {{ global.business.phone }}
+            </p>
+        {% endif %}
+        {% if global.business.email %}
+            <p>
+                Email: <a href="mailto:{{ global.business.email }}">{{ global.business.email }}</a>
+            </p>
+        {% endif %}
+    </div>
+    <section class="shadow-box section-block bg-form-block pad-small">
+        <div class="row">
+            <div class="column large-4">
+                <h2 class="text-bold">
+                    Contact Form
+                </h2>
+                {% if gts.text_contact_form %}
+                    <div class="padding-top">
+                        {{ theme.text_snippet('contact_form') }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="column large-8">
+                {# contact form #}
+                <form action="{{ global.current_url }}" method="post" class="form-with-validation">
+                    <div class="row">
+                        <div class="column large-6">
+                            <label>
+                                <span class="field-label">Your Name</span>
+                                {{ html.input('name', form_field_value('name'), 'form-control required') }}
+                            </label>
+                        </div>
+                        <div class="column large-6">
+                            <label>
+                                <span class="field-label">Your Telephone Number</span>
+                                {{ html.input('phone', form_field_value('phone'), 'form-control') }}
+                            </label>
+                        </div>
+                    </div>
+                    <label>
+                        <span class="field-label">Your Email Address</span>
+                        {{ html.input('email', form_field_value('email'), 'form-control required') }}
+                    </label>
+                    <label>
+                        <span class="field-label">Your Enquiry</span>
+                        {{ html.textarea('message', form_field_value('message'), 'form-control required', '') }}
+                    </label>
+                    <div class="row">
+                        <div class="column medium-6 large-5">
+                            {{ shopwired.honeypot() }}
+                            {% if recaptcha %}
+                                <div class="g-recaptcha margin-bottom"></div>
+                            {% endif %}
+                            <button type="submit" class="button expanded margin-top">Send your message</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

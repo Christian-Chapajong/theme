@@ -1,0 +1,604 @@
+{# Extend page template #}
+{% extends 'templates/blocks.twig' %}
+
+{% import 'macros/html.twig' as html %}
+{% import 'macros/theme.twig' as theme %}
+
+{% set gts = global.theme.settings %}
+{% set display_price = not global.customer.trade and gts.hide_prices ? 0 : 1 %}
+{% set modal = breadcrumb_title == product.title ? false : true %}
+
+{% block content %}
+    {% if product %}
+        {# Render product #}
+        <div class="product-container{{ product.in_stock ? ' in-stock' : '' }}{{ product.sale_price ? ' has-sale-price' : '' }}"
+            data-sku="{{ product.sku }}"
+            data-reward-points="{{ product.reward_points }}"
+            data-is-in-stock="{{ product.in_stock ? 1 : 0 }}"
+            data-can-be-added="{{ product.can_be_added ? 1 : 0 }}"
+            data-has-sale-price="{{ product.sale_price > 0 ? 1 : 0 }}"
+            data-price="{{ product.reward_points_enabled ? product.price : format_price(product.price) }}"
+            data-sale-price="{{ product.reward_points_enabled ? product.sale_price : format_price(product.sale_price) }}"
+        >
+            <div class="row">
+                <div class="large-{{ modal ? 6 : 7 }} column product-images-outer">
+                    {{ block('product_images') }}
+                </div>
+                <div class="large-{{ modal ? 6 : 5 }} column product-info-outer">
+                    {{ block('product_info') }}
+                    <div id="product-bulk-hide" data-toggler=".hide">
+                        {{ block('product_form') }}
+                        {% if not modal %}
+                            {{ block('send_to_friend') }}
+                            {{ block('product_share') }}
+                            {{ block('product_rewards') }}
+                            {{ block('product_stock_request') }}
+                        {% endif %}
+                    </div>
+                    {{ block('product_bulk_pricing') }}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h1>
+            {{ breadcrumb_title }}
+        </h1>
+    {% endif %}
+{% endblock %}
+
+
+{% block product_images %}
+    {# Render brand name #}
+    {% if product.brand.title %}
+        <a class="product-brand-title hide-for-large" href="{{ product.brand.url }}" target="_blank">{{ product.brand.title }}</a>
+    {% endif %}
+    {# Render product title #}
+    <h1 class="product-title hide-for-large">
+        {{ product.title }}
+    </h1>
+    {% if not modal and product.description|length and false %}
+        <a  class="product-description-link text-body text-underline hide-for-large" href="#product-description">view details</a>
+    {% endif %}
+    <div class="info-details hide-for-large margin-bottom">
+        {# Reder prices #}
+        {% if display_price %}
+            <div class="product-cost">
+                <div class="product-sale-price price">
+                    {{ format_price(product.sale_price) }}
+                </div>
+                <div class="product-price price">
+                    {{ format_price(product.price) }}
+                </div>
+                {% if product.subscription %}
+                    <span class="product-price-subscription">
+                        / {{ product.subscription_interval }}
+                    </span>
+                {% endif %}
+            </div>
+        {% else %}
+            {% include 'partials/hidden_prices.twig' %}
+        {% endif %}
+        {# Render bulk discount link #}
+        {% if gts.bulk_discount_tables and (product.bulk_prices or product.bulk_variations) and display_price %}
+            <a class="product-bulk-link" data-toggle="product-bulk-hide product-bulk-pricing">bulk savings</a>
+        {% endif %}
+        {# Render labels #}
+        {% if product.three_for_two %}
+            {{ theme.product_label('3 for 2') }}
+        {% elseif product.two_for_one %}
+            {{ theme.product_label('2 for 1') }}
+        {% endif %}
+    </div>
+    <div class="product-image{{ product.photos|length > 1 and not modal ? ' with-dots' : '' }}">
+        <div role="region" aria-label="Product Images" class="product-main-image">
+            {# Render photo box #}
+            {% if product.photo_url %}
+                {% if product.photos|length > 1 %}
+                    <div class="main-image-slider{{ product.photos|length > 1 ? ' show-for-medium' }}{{ modal ? ' hide' : '' }}">
+                        {% for photo in product.photos %}
+                            <div class="slide">
+                                <a class="image-container product-gallery-main-photo"
+                                   data-fit="0"
+                                   {% if not modal and product.photos|length %}
+                                   data-zoom="{{ gts.product_zoom }}"
+                                   {% endif %}
+                                   {% if gts.product_lightbox and not modal and product.photos|length %}
+                                   data-fancybox-trigger="gallery"
+                                   data-fancybox-index="{{ loop.index0 }}"
+                                   {% endif %}
+                                >
+                                    <img src="{{ photo.url }}" alt="{{ photo.description }}">
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elseif not modal %}
+                    <a class="image-container product-gallery-main-photo"
+                       data-fit="0"
+                       {% if not modal and product.photos|length %}
+                       data-zoom="{{ gts.product_zoom }}"
+                       {% endif %}
+                       {% if gts.product_lightbox and not modal and product.photos|length %}
+                       data-fancybox-trigger="gallery"
+                       data-fancybox-index="0"
+                       {% endif %}
+                    >
+                        <img src="{{ product.photo_url }}" class="product-gallery-photo" alt="{{ product.photo_description }}">
+                    </a>
+                {% endif %}
+                {# render mobile slider #}
+                {% if product.photos|length > 1 or modal %}
+                    <div class="modal-carousel carousel margin-bottom{{ modal ? '' : ' hide-for-medium' }}">
+                        {% for photo in product.photos %}
+                            <div class="modal-carousel-slide slide">
+                                <a class="image-container"
+                                    data-fit="0"
+                                    {% if gts.product_lightbox and not modal and product.photos|length %}
+                                    data-fancybox="gallery"
+                                    data-src="{{ photo.url }}"
+                                    {% endif %}
+                                >
+                                    <img src="{{ photo.url }}" alt="{{ photo.description }}">
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if not modal and product.photos|length and gts.product_lightbox %}
+                    <span class="zoom hide-for-ts">
+                        {{ theme.sw_icon('zoom-in') }}
+                    </span>
+                {% endif %}
+                {% if product.photos|length %}
+                    {# hidden thumbnails #}
+                    <div class="product-carousel product-thumbs carousel hide">
+                        {% for photo in product.photos %}
+                            <div class="product-thumbs-slide slide">
+                                <a href="{{ photo.url }}" class="js-item-image p{{ loop.index0 }} image-container {{ loop.first ? 'active' : '' }}" data-fit="{{ gts.image_container_product_thumbnail ? '1' : '0' }}" {% if gts.product_lightbox %}data-fancybox="gallery" data-src="{{ photo.url }}" {% endif %}data-idx="{{ loop.index0 }}">
+                                    <img src="{{ photo.url }}" alt="{{ photo.description }}">
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        {# render video button #}
+        {% if product.raw_video_embed_code and not modal %}
+            <div class="text-right margin-top padding-top padding-bottom">
+                <a class="link-with-icon info-video" data-fancybox href="{{ product.video_embed_code }}">
+                    {{ theme.sw_icon('film') }}
+                    <span>Play video</span>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block product_info %}
+    <div class="product-info">
+        {# render pre-order shipping date #}
+        {% if product.shipping_date %}
+            <div class="product-ship-date">
+                {% include 'partials/delivery_svg.twig' %}
+                <span class="inner">
+                    This product will be shipped on <span>{{ product.shipping_date|date('jS F Y', 'Europe/London') }}</span>
+                </span>
+            </div>
+            <br>
+        {% endif %}
+        <div class="row collapse">
+            <div class="column small-10 medium-11">
+                {# Render brand name #}
+                {% if product.brand.title %}
+                    <a class="product-brand-title show-for-large" href="{{ product.brand.url }}" target="_blank">{{ product.brand.title }}</a>
+                {% endif %}
+                {# Render product title #}
+                <h1 class="product-title show-for-large">
+                    {{ product.title }}
+                </h1>
+                {% if not modal and product.description|length %}
+                    <a  class="product-description-link js-scroll-to text-body text-underline show-for-large" href="#product-details">view details</a>
+                {% endif %}
+            </div>
+            <div class="column small-2 medium-1 text-right">
+                {# Render wishlist buttons #}
+                <a href="/wishlist?action={{ product.in_wishlist ? 'remove' : 'add' }}&amp;product_id={{ product.id }}"
+                   class="product-wishlist-button icon-button js-wishlist-button{{ product.in_wishlist ? ' on' : '' }}"
+                   data-remove="{{ gts.button_remove_from_wishlist }}"
+                   data-add="{{ gts.button_add_to_wishlist }}"
+                >
+                    {% set heart_icon = product.in_wishlist ? 'heart-1' : 'heart' %}
+                    {{ theme.sw_icon(heart_icon) }}
+                    <span class="show-for-sr">{{ product.in_wishlist ? gts.button_remove_from_wishlist : gts.button_add_to_wishlist }}</span>
+                </a>
+            </div>
+        </div>
+        {% if modal %}
+            <div class="margin-bottom">
+                <a class="product-modal-link" href="{{ product.url }}">View details</a>
+            </div>
+        {% endif %}
+        <div class="info-details show-for-large">
+            {# Reder prices #}
+            {% if display_price %}
+                <div class="product-cost">
+                    <div class="product-sale-price price">
+                        {{ format_price(product.sale_price) }}
+                    </div>
+                    <div class="product-price price">
+                        {{ format_price(product.price) }}
+                    </div>
+                    {% if product.subscription %}
+                        <span class="product-price-subscription">
+                            / {{ product.subscription_interval }}
+                        </span>
+                    {% endif %}
+                </div>
+            {% else %}
+                {% include 'partials/hidden_prices.twig' %}
+            {% endif %}
+            {# Render bulk discount link #}
+            {% if gts.bulk_discount_tables and (product.bulk_prices or product.bulk_variations) and display_price %}
+                <a class="product-bulk-link" data-toggle="product-bulk-hide product-bulk-pricing">bulk savings</a>
+            {% endif %}
+            {# Render labels #}
+            {% if product.three_for_two %}
+                {{ theme.product_label('3 for 2') }}
+            {% elseif product.two_for_one %}
+                {{ theme.product_label('2 for 1') }}
+            {% endif %}
+        </div>
+        {% if product.photos|length %}
+            <div class="info-details hide-for-large">
+                <span class="product-price price responsive">
+                    {{  format_price(product.sale_price ? product.sale_price : product.price) }}
+                </span>
+            </div>
+        {% endif %}
+        {# render product offers #}
+        {% if product.offers %}
+            <div class="margin-top">
+                {% for offer in product.offers %}
+                    <div class="product-offer">
+                        <div class="product-offer-title">
+                            {{ offer.title }}
+                        </div>
+                        {% if gts.show_product_page_offer_description %}
+                            <p class="product-offer-description">
+                                {{ offer.description }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block product_form %}
+    {# Minimum and maximum order quantities #}
+    {% set order_min = not global.features.extensions.min_max_quantity ? 0 : global.minimum_product_quantity > 0 ? global.minimum_product_quantity : product.minimum_order_quantity %}
+    {% set order_max = not global.features.extensions.min_max_quantity ? 0 : global.maximum_product_quantity > 0 ? global.maximum_product_quantity : product.maximum_order_quantity %}
+
+    {# Render product form #}
+    <form class="product-form form-with-validation"
+          action="{{ product.url }}"
+          method="post"
+          data-min-quantity="{{ order_min }}"
+          data-max-quantity="{{ order_max }}"
+          {% if product.user_files > 0 %} enctype="multipart/form-data"{% endif %}
+    >
+        {# Render options #}
+        {% if product.options|length %}
+
+            {% for option in product.options %}
+                {% if gts.variant_buttons %}
+                    <div class="product-option product-line">
+                        <input type="hidden" name="value[]" value="" class="product-option-value">
+                        <label class="field-label">
+                            Select Your {{ option.name }}
+                        </label>
+                        <div class="product-option-container">
+                            {% set group = loop.index0 %}
+                            {% for value in option.values %}
+                                {% if not value.hidden %}
+                                    {% set parts = value.name|split(':#') %}
+                                    {% set name = parts[0] %}
+                                    {% set color = parts[1] ? parts[1] : '' %}
+                                    <label class="rectangle {{ color ? 'color top' : '' }}"{% if color %} data-tooltip title="{{ name }}"{% endif %}>
+                                        <input type="radio" name="group{{ group }}" value="{{ value.id }}" class="product-option-input required">
+                                        <span class="inner" style="{{ color ? ('background-color:#' ~ color ~ ';') : '' }}">
+                                            {{ name }}
+                                        </span>
+                                    </label>
+                                {% endif %}
+                            {% else %}
+                                <div class="note">
+                                    Choose an option from the list above...
+                                </div>
+                                <input type="radio" name="group{{ group }}" value="" class="product-option-input required" checked="checked">
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <label class="product-line">
+                        <span class="field-label">{{ option.name }}</span>
+                        <select name="value[]" class="product-option required">
+                            <option value="">Please select...</option>
+                            {% for value in option.values %}
+                                <option value="{{ value.id }}">
+                                    {{ value.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                {% endif %}
+            {% endfor %}
+
+        {% endif %}
+        {% if product.alt_options|length %}
+            {% for option in product.alt_options %}
+                <label class="product-line">
+                    <span class="field-label">{{ option.name }}</span>
+                    <select name="alt2_attribute_id[]">
+                        <option value="">Please select...</option>
+                        {% for value in option.values %}
+                            <option value="{{ value.id }}" data-price="{{ value.price ? value.price|number_format(2) : 0 }}">
+                                {{ value.name }}
+                                {% if value.price and display_price %}
+                                    + {{ format_price(value.price) }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+            {% endfor %}
+        {% endif %}
+        {# Render extras #}
+        {% if product.extras|length %}
+            <fieldset class="info-extra" data-total="0">
+                <ul class="no-bullet no-margin">
+                    {% for extra in product.extras %}
+                        {% set data_price = extra.price|number_format(2) %}
+                        <li>
+                            <div class="product-line">
+                                <span class="field-label">{{ extra.name }}</span>
+                                {{ html.input('product_extras[]', extra.id, '', '', 'checkbox', 'id="extra-' ~ extra.id ~ '" data-price="' ~ data_price ~ '"') }}
+                                <label for="extra-{{ extra.id }}">
+                                    <strong>
+                                        Yes
+                                        {% if extra.price and display_price %}
+                                            ({{ format_price(extra.price) }})
+                                        {% endif %}
+                                    </strong>
+                                </label>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </fieldset>
+        {% endif %}
+        {% if product.user_files > 0 or product.customization_fields|length %}
+            {# Render customization fields #}
+            {% if product.customization_fields|length %}
+                <fieldset class="product-line">
+                    {% for field in product.customization_fields %}
+                        <label>
+                            <span class="field-label">{{ field.label }}</span>
+                            {% if field.type == 1 %}
+                                {{ html.input('customization_field[' ~ field.id ~ ']', '', '', '', 'text', field.max_length ? 'maxlength="' ~ field.max_length ~ '"' : '') }}
+                            {% elseif field.type == 2 %}
+                                {{ html.textarea('customization_field[' ~ field.id ~ ']', '', '', '', '2', field.max_length ? 'maxlength="' ~ field.max_length ~ '"' : '') }}
+                            {% endif %}
+                        </label>
+                    {% endfor %}
+                </fieldset>
+            {% endif %}
+            {# Render file fields #}
+            {% if product.user_files > 0 %}
+                <fieldset class="product-line">
+                    <label class="field-label">Please upload your file{{ product.user_files > 1 ? 's' : '' }}</label>
+                    {% for i in 1..product.user_files %}
+                        {{ html.input('files[]', '', '', '', 'file') }}
+                    {% endfor %}
+                </fieldset>
+            {% endif %}
+        {% endif %}
+
+
+        {% set show_pre_order = global.features.apps.pre_order_products and product.is_pre_order and not product.is_released ? true : false %}
+
+        {% if display_price and not show_pre_order %}
+            <div class="product-buy product-line{{ global.features.extensions.back_in_stock and not modal ? ' hide-if-no-stock'}}">
+                <p class="product-quantity">
+                    {% if gts.product_quantity_box and display_price and product.in_stock %}
+                        QTY
+                    {% endif %}
+                    {% if (order_min or order_max) and global.features.extensions.min_max_quantity %}
+                        <span class="order-quantity">{% if order_min %}Minimum order quantity {{ order_min }}.{% endif %} {% if order_max %}Maximum order quantity {{ order_max }}{% endif %}</span>
+                    {% endif %}
+                </p>
+                <div class="row-table">
+                    {% if gts.product_quantity_box and display_price %}
+                        {% set qtyClass = product.in_stock ? '' : ' hide' %}
+                        <div class="col-cell product-quantity{{ qtyClass }}">
+                            {# number toggle input #}
+                            {{ html.number_toggle('quantity', order_min ? order_min : '1', 'quantity-input', '', '', '', '', '') }}
+                        </div>
+                    {% else %}
+                        <input type="hidden" name="quantity" value="1">
+                    {% endif %}
+                    <div class="col-cell">
+                        {% set softClass = global.features.ajax_basket ? 'product-soft-add-button' : '' %}
+                        {# Render add to basket button #}
+                        {% if product.in_stock %}
+                            {{ html.button('cart_button', '', gts.button_add_to_basket, 'button expanded text-nocase button_add-basket product-add-button ' ~ softClass,'','','','data-nostock="OUT OF STOCK" data-text="' ~ gts.button_add_to_basket ~ '" id="product_add_button"', 'button_add_to_basket') }}
+                        {% else %}
+                            {{ html.button('cart_button', '', 'out of stock', 'button expanded text-nocase button_add-basket product-add-button disabled ' ~ softClass,'','','','data-nostock="OUT OF STOCK" data-text="' ~ gts.button_add_to_basket ~ '" id="product_add_button"') }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {# Render pre-order date #}
+        {% if show_pre_order %}
+            <div class="product-buy product-line{{ global.features.extensions.back_in_stock and not modal ? ' hide-if-no-stock'}}">
+                <div class="product-buy-preorder">
+                    {% include 'partials/release_svg.twig' %}
+                    <span class="inner">This product will be released on <strong>{{ product.release_date|date('jS F Y \\a\\t g:ia', 'Europe/London') }}</strong></span>
+                </div>
+            </div>
+        {% endif %}
+        {# Stock request modal toggle #}
+        {% if global.features.extensions.back_in_stock and not modal %}
+            <div class="stock-requests-container">
+                <br>
+                <button type="button" class="button out-of-stock-button text-nocase expanded" data-open="stockRequestsModal" data-name="button_out_of_stock">{{ gts.button_out_of_stock }}</button>
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block product_share %}
+    {% if global.theme.settings.show_product_social_buttons or global.features.extensions.send_to_a_friend %}
+        {% set hide_buttons = global.theme.settings.show_product_social_buttons ? false : true %}
+        <div class="product-share-buttons">
+            {{ theme.share_buttons(global.current_url, product.title, product.description, product.photo_url, true, 'social-menu menu simple', global.features.extensions.send_to_a_friend, hide_buttons) }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block product_rewards %}
+    <p class="info-rewards-line info-reward{{ product.reward_points ? '' : ' hide' }}">
+        You’ll earn <span class="product-reward-points">{{ product.reward_points }}</span><span> reward points</span> with this purchase.
+    </p>
+{% endblock %}
+
+{% block product_stock_request %}
+    {% if global.features.extensions.back_in_stock and not modal %}
+        <div class="reveal stock-requests-modal standard" id="stockRequestsModal" data-reveal>
+            <div class="inner padding">
+                <h1 class="text-upper">
+                    Be one of the first to know!
+                </h1>
+                <p class="lead">
+                    We’re sorry we’re out of stock but we can let you know as soon as it's available if you enter your email address below.
+                </p>
+                <form action="{{ product.url }}" method="post" class="form-with-validation">
+                    <label>
+                        <span class="field-label">Your Name</span>
+                        <input type="text" name="stock_request_name" class="required" placeholder="Your Name">
+                    </label>
+                    <label>
+                        <span class="field-label">Your Email Address</span>
+                        <input type="text" name="stock_request_email" class="required jsv_email" placeholder="Your Email Address">
+                    </label>
+                    <button class="button no-margin-bottom margin-top pad-x" name="stock_request" value="1" type="submit">Send Your Request</button>
+                </form>
+                <button class="close-button btn-close" data-close aria-label="Close modal" type="button">
+                    <span>Close</span>
+                </button>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block product_bulk_pricing %}
+    {% if gts.bulk_discount_tables and (product.bulk_prices or product.bulk_variations) and display_price %}
+        <div class="product-bulk-pricing hide" id="product-bulk-pricing" data-toggler=".hide">
+            <div class="bulk-savings-table">
+                <div class="table-heading">
+                    <h4>
+                        Bulk Buying Discounts
+                    </h4>
+                    <a class="bulk-close btn-close" data-toggle="product-bulk-pricing product-bulk-hide">close</a>
+                </div>
+                {% if product.bulk_variations|length %}
+                    <table class="bulk-discounts-table with-vars">
+                        <tr class="show-for-sr">
+                            <th>Variation</th>
+                            <th>Quantity Purchased</th>
+                            <th>Price</th>
+                        </tr>
+                        {% for variation in product.bulk_variations %}
+                            {% for price in variation.prices %}
+                                {% set var_title = ':#' in variation.title ? variation.title|split(':#')[0] : variation.title %}
+                                <tr>
+                                    <td>{{ var_title }}</td>
+                                    <td>{{ price.quantity }}</td>
+                                    <td>{{ currency_value(price.value) }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </table>
+                {% elseif product.bulk_prices|length %}
+                    <table class="bulk-discounts-table">
+                        <tr class="show-for-sr">
+                            <th>Quantity Purchased</th>
+                            <th>Price</th>
+                        </tr>
+                        {% for bulk_price in product.bulk_prices %}
+                            <tr>
+                                <td>{{ bulk_price.quantity }}</td>
+                                <td>{{ currency_value(bulk_price.value) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </div>
+       </div>
+    {% endif %}
+{% endblock %}
+
+{% block send_to_friend %}
+    {% if global.features.extensions.send_to_a_friend %}
+        <div class="reveal large recommend-modal" id="recommendModal" data-reveal>
+            <div class="row collapse">
+                <div class="column large-6 show-for-large">
+                    <div class="padding">
+                        <div class="image-container" data-fit="0">
+                            <img src="{{ product.photo_url }}" alt="{{ product.photo_description }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="column large-6">
+                    <div class="padding">
+                        <h1 class="text-upper">
+                            Share the love with your friend
+                        </h1>
+                        <p class="lead">
+                            Complete the form below and we'll email your friend about this product
+                        </p>
+                        <form action="{{ global.current_url }}" method="post" class="form-with-validation">
+                            <label>
+                                <span class="field-label">Your Friend's Email Address</span>
+                                <input type="text" name="email_address" class="required jsv_email">
+                            </label>
+                            <label>
+                                <span class="field-label">Optional Message</span>
+                                <textarea cols="30" rows="5" name="message"></textarea>
+                            </label>
+                            <input type="text" name="{{ global.honeypot_field_name }}" autocomplete="off" class="hide">
+                            {% if recommendation_recaptcha %}
+                                <div class="g-recaptcha"></div>
+                                <br>
+                            {% endif %}
+                            <input type="hidden" name="redirect_message" value="The email has been sent">
+                            <div class="row column large-6">
+                                <button name="send_recommendation_email" value="1" class="button expanded">
+                                    Send your request
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <button class="close-button btn-close" data-close aria-label="Close modal" type="button">
+                <span>Close</span>
+            </button>
+        </div>
+    {% endif %}
+{% endblock %}

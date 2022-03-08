@@ -1,0 +1,100 @@
+{% import 'macros/html.twig' as html %}
+{% import 'macros/theme.twig' as theme %}
+{% set type = item_type|default('product') %}
+{% set gts = global.theme.settings %}
+{% set global_user = global.customer.trade ? 2 : global.customer.id ? 1 : 0 %}
+{% set display_price = not global.customer.trade and global.theme.settings.hide_prices ? 0 : 1 %}
+{% set soft_button = button|default(true) %}
+
+{% for item in items|default(products) %}
+    {% if item != 'false' %}
+        <div class="column column-block{{ loop.last ? ' end' : '' }}">
+            {# Determine photo URL #}
+            {% set photo_url = type == 'gallery_photo' ? item.url : item.photo_url %}
+
+            <article class="item-box text-center {{ type }}-box">
+                {# Render photo box #}
+                <div class="item-image">
+                    {# Render labels #}
+                    {% if type == 'product' %}
+                        {% if item.three_for_two %}
+                            {{ theme.product_label('3 for 2') }}
+                        {% elseif item.two_for_one %}
+                            {{ theme.product_label('2 for 1') }}
+                        {% endif %}
+                        {% if soft_button and display_price %}
+                            <a href="{{ item.url }}" class="quick-view no-margin quick-view-button">
+                                quick view
+                            </a>
+                        {% endif %}
+                        {# render product offers #}
+                        {% if item.offers %}
+                            <div class="product-offer-container show-for-medium">
+                                {% for offer in item.offers %}
+                                    <div class="product-offer">
+                                        <div class="product-offer-title">
+                                            {{ offer.title }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    <a  href="{{ item.url }}" class="image-container" data-fit={% if type == 'product' %}"{{ global.theme.settings.image_container_product ? '1' : '0' }}"{% elseif items == brands %}"0"{% elseif type == 'category' %}"{{ global.theme.settings.image_container_category ? '1' : '0' }}"{% else %}"1"{% endif %}>
+                        {# Render image #}
+                        {{ html.image(photo_url, item.photo_description, 'item-img', '', gts.lazyload_images, true) }}
+                    </a>
+
+                </div>
+                {% set title = type == 'gallery' or type == 'gallery_photo' ? item.name : item.title %}
+                <h3 class="item-title">
+                    {% if item.new %}
+                        <span class="label secondary new">New!</span>
+                    {% endif %}
+
+                    <a href="{{ item.url }}">{{ title }}</a>
+                </h3>
+                {% if type == 'product' %}
+                    <div class="box-data">
+                        {# Render product prices #}
+                        {% if display_price %}
+                            {% if item.price_in_points > 0 %}
+                                <span class="price">{{ item.price_in_points }} points</span>
+                            {% else %}
+                                {% if item.sale_price > 0 %}
+                                    <span class="price mod-sale">{{ format_price(item.sale_price) }}</span>
+                                {% endif %}
+                                <span class="price">{{ format_price(item.price) }}</span>
+                            {% endif %}
+                        {% else %}
+                            {% include 'partials/hidden_prices.twig' %}
+                        {% endif %}
+                        {% if item.subscription %}
+                            <p class="item-subscription">
+                                {{ item.subscription_interval }} subscription
+                            </p>
+                        {% endif %}
+                        {# render mobile product offers #}
+                        {% if item.offers %}
+                            <div class="product-offer-container-mobile hide-for-medium">
+                                {% for offer in item.offers %}
+                                    <div class="product-offer">
+                                        <div class="product-offer-title">
+                                            {{ offer.title }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </article>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="column">
+        <h2 class="subheader">
+            No items found.
+        </h2>
+    </div>
+{% endfor %}

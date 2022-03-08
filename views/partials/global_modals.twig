@@ -1,0 +1,61 @@
+{# Age verification #}
+{% if gts.age_modal %}
+    <div class="reveal verify-age-modal standard" id="verifyAgeModal" data-reveal data-close-on-click="false" data-close-on-esc="false">
+        <h1>
+            {{ theme.text_snippet('age_modal_title') }}
+        </h1>
+        <p class="lead">
+            {{ theme.text_snippet('age_modal_text') }}
+        </p>
+        <button class="button success js-confirm" data-close>
+            I am 18 years or older
+        </button>
+        <br>
+        <button class="link" onclick="{{ gts.text_age_modal_url|length ? 'window.location.href = "' ~ gts.text_age_modal_url ~ '";' : 'window.history.back();' }}">
+            I'm not yet 18
+        </button>
+    </div>
+{% endif %}
+
+
+{# Newsletter #}
+{% if gts.newsletter_modal %}
+    <div class="reveal newsletter-modal standard" id="newsletterModal" data-reveal>
+        <div class="row">
+            <div class="column large-10 large-push-1">
+                <div class="text-center">
+                    <h1>
+                        {{ theme.text_snippet('newsletter_modal_title') }}
+                    </h1>
+                    <p class="lead">
+                        {{ theme.text_snippet('newsletter_modal_text') }}
+                    </p>
+                </div>
+                {# Render newsletter form #}
+                {% if global.theme.settings.mailchimp_action %}
+                    <form action="{{ global.theme.settings.mailchimp_action }}" method="post" class="newsletter-form" name="mc-embedded-subscribe-form" target="_blank" novalidate="novalidate">
+                        <div class="input-group mod-simple">
+                            {{ html.input('EMAIL', '', 'input-group-field jsv_email required', 'Enter your email address') }}
+                            <div class="input-group-button">
+                                {{ html.button('', '', 'Subscribe', 'button', true) }}
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    <form action="/newsletter-subscribe" method="post" class="newsletter-form form-with-validation">
+                        <div class="input-group mod-simple">
+                            {{ html.input('email', '', 'input-group-field jsv_email required', 'Enter your email address') }}
+                            <div class="input-group-button">
+                                {{ html.button('', '', 'Subscribe', 'button', true) }}
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+                <p class="small">We'll only use your email address to send you our newsletter</p>
+            </div>
+        </div>
+        <button class="close-button btn-close" data-close aria-label="Close modal" type="button">
+            <span>Close</span>
+        </button>
+    </div>
+{% endif %}

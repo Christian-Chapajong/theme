@@ -1,0 +1,9 @@
+{# Extend collection template #}
+{% extends 'templates/collection.twig' %}
+
+{% set title = 'Your Wishlist' %}
+
+{% block items %}
+	{# Render products #}
+	{% include 'partials/items.twig' %}
+{% endblock %}

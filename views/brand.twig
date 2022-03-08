@@ -1,0 +1,18 @@
+{# Extend collection template #}
+{% extends 'templates/collection.twig' %}
+
+{% set title = brand.title %}
+{% set description = brand.description %}
+{% set show_sidebar = true %}
+
+{% block sidebar %}
+	{# Render brand menu #}
+	{% include 'partials/category_menu.twig' with { 'categories': global.brands, nav_title: 'Our Brands' } %}
+
+{% endblock %}
+
+{% block items %}
+	{# Render products #}
+	{% include 'partials/items.twig' with { 'classes': 'small-up-2 medium-up-3' } %}
+
+{% endblock %}
